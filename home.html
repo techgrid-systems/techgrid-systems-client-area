@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Hub | TechGrid Systems</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,900&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; scroll-behavior: smooth; }
+
+        /* Branding Styles */
+        .logo-text {
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #94a3b8;
+            transition: color 0.2s;
+            height: 100%;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: white;
+        }
+        .nav-link.active {
+            border-bottom: 3px solid #3b82f6;
+        }
+
+        .hero-bg {
+            background-color: #111827;
+            background-image: 
+                linear-gradient(rgba(17, 24, 39, 0.8), rgba(17, 24, 39, 0.95)),
+                url("data:image/svg+xml,%3Csvg width='400' height='400' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%233b82f6' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h40v40H40V0zM0 40h40v40H0V40zm80 0h40v40H80V40zm0-40h40v40H80V0zM40 80h40v40H40V80zm0-40h40v40H40V40z'/%3E%3C/g%3E%3C/svg%3E");
+            background-position: center;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        
+        .service-card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+            transform: translateY(-4px);
+            border-color: #3b82f6;
+        }
+
+        #main-content { opacity: 0; transition: opacity 0.3s ease; }
+        .auth-verified #main-content { opacity: 1; }
+        
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: #111827;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        /* Search Results Styling */
+        #search-results {
+            display: none;
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+        .search-item:hover {
+            background-color: #f1f5f9;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Loading Overlay -->
+    <div id="loading" class="loading-overlay">
+        <div class="flex flex-col items-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
+            <span class="text-white text-[10px] font-black uppercase tracking-widest opacity-50">Secure Session Link</span>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <!-- TOP HEADER -->
+        <header class="bg-[#111827] text-white px-6 md:px-12 h-20 flex items-center justify-between sticky top-0 z-50 shadow-lg">
+            <div class="flex items-center space-x-12 h-full">
+                <!-- Logo Section -->
+                <div class="flex items-center cursor-pointer" onclick="navigateTo('home.html')">
+                    <span class="logo-text text-2xl tracking-tighter">
+                        TECHGRID <span class="text-blue-500">SYSTEMS</span>
+                    </span>
+                </div>
+                
+                <!-- Navigation Section -->
+                <nav class="hidden lg:flex items-center space-x-8 h-full">
+                    <a href="javascript:void(0)" onclick="navigateTo('dashboard.html')" class="nav-link active">
+                        <i class="fas fa-home text-sm"></i> Home
+                    </a>
+                    <a href="javascript:void(0)" onclick="navigateTo('new-request.html')" class="nav-link">
+                        <i class="fas fa-plus-circle text-sm"></i> New Request
+                    </a>
+                    <a href="javascript:void(0)" onclick="navigateTo('history.html')" class="nav-link">
+                        <i class="fas fa-file-alt text-sm"></i> My Requests
+                    </a>
+                    <a href="javascript:void(0)" class="nav-link">
+                        <i class="fas fa-lightbulb text-sm"></i> Solutions
+                    </a>
+                </nav>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <div id="user-pill" class="flex items-center text-[11px] bg-slate-800 border border-slate-700 px-4 py-2 rounded text-slate-300 font-bold tracking-wider uppercase">
+                    <i class="fas fa-user-circle mr-2 text-blue-400"></i>
+                    USER: <span id="user-display-name" class="ml-1">LOADING...</span>
+                </div>
+                <button onclick="logout()" class="text-slate-500 hover:text-white transition-colors p-2 text-lg">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- HERO SECTION WITH GLOBAL SEARCH -->
+        <section class="hero-bg h-[400px] flex flex-col items-center justify-center text-white px-6 relative">
+            <div class="text-center mb-10">
+                <p class="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500 mb-4">Centralized Operations Hub</p>
+                <h1 class="text-4xl md:text-5xl font-black tracking-tight" id="hero-welcome">Welcome back</h1>
+            </div>
+            
+            <div class="relative w-full max-w-2xl z-40">
+                <i class="fas fa-search absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 text-xl"></i>
+                <input type="text" id="global-search" oninput="handleSearch(this.value)" placeholder="Search tickets, forms, or resources..." class="w-full py-6 pl-16 pr-8 rounded-2xl text-slate-800 focus:outline-none shadow-2xl text-lg font-medium">
+                
+                <!-- Search Results Overlay -->
+                <div id="search-results" class="absolute top-full left-0 w-full mt-2 bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden">
+                    <div id="results-list" class="p-2">
+                        <!-- Items injected here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DASHBOARD GRID -->
+        <main class="max-w-7xl mx-auto w-full p-8 md:p-12 -mt-20 relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <!-- IT Support -->
+                <div onclick="navigateTo('new-request.html')" class="service-card p-10 flex flex-col items-center text-center">
+                    <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-3xl mb-6">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3 class="font-black text-slate-800 uppercase tracking-widest text-xs mb-3">Technical Support</h3>
+                    <p class="text-sm text-slate-400 font-medium">Request hardware or software assistance from our engineering team.</p>
+                </div>
+
+                <!-- History -->
+                <div onclick="navigateTo('history.html')" class="service-card p-10 flex flex-col items-center text-center">
+                    <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-3xl mb-6">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3 class="font-black text-slate-800 uppercase tracking-widest text-xs mb-3">Request History</h3>
+                    <p class="text-sm text-slate-400 font-medium">Review your active tickets, past resolutions, and system status updates.</p>
+                </div>
+
+                <!-- Knowledge Base -->
+                <div class="service-card p-10 flex flex-col items-center text-center">
+                    <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-3xl mb-6">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h3 class="font-black text-slate-800 uppercase tracking-widest text-xs mb-3">Knowledge Base</h3>
+                    <p class="text-sm text-slate-400 font-medium">Access detailed manuals, guides, and self-help technical documentation.</p>
+                </div>
+
+                <!-- Billing -->
+                <div onclick="navigateTo('new-request.html')" class="service-card p-10 flex flex-col items-center text-center">
+                    <div class="w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-3xl mb-6">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
+                    <h3 class="font-black text-slate-800 uppercase tracking-widest text-xs mb-3">Billing & Accounts</h3>
+                    <p class="text-sm text-slate-400 font-medium">Manage corporate invoices, payment methods, and user permissions.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Global Data Index for Search
+        const searchIndex = [
+            { title: "Technical Support Form", category: "Form", icon: "fa-tools", url: "new-request.html", keywords: "help hardware software support ticket broken" },
+            { title: "Billing Inquiry Form", category: "Form", icon: "fa-file-invoice-dollar", url: "new-request.html", keywords: "invoice money payment bill pricing" },
+            { title: "New Account Request", category: "Form", icon: "fa-user-plus", url: "new-request.html", keywords: "onboarding access user login permission" },
+            { title: "General Feedback", category: "Form", icon: "fa-comment-alt", url: "new-request.html", keywords: "suggestion complaint review" },
+            { title: "Request History", category: "Page", icon: "fa-history", url: "history.html", keywords: "previous past tickets status resolved" },
+            { title: "VPN Connection Issues (#TG-88210)", category: "History", icon: "fa-shield-alt", url: "history.html", keywords: "vpn network remote london" },
+            { title: "Knowledge Base", category: "Resource", icon: "fa-book-open", url: "#", keywords: "help docs manuals guides instructions" },
+            { title: "VOIP Portal", category: "Resource", icon: "fa-phone", url: "support_page.html", keywords: "phone call voice setup" }
+        ];
+
+        function handleSearch(query) {
+            const resultsDiv = document.getElementById('search-results');
+            const listDiv = document.getElementById('results-list');
+            
+            if (!query.trim()) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+
+            const filtered = searchIndex.filter(item => 
+                item.title.toLowerCase().includes(query.toLowerCase()) || 
+                item.keywords.toLowerCase().includes(query.toLowerCase()) ||
+                item.category.toLowerCase().includes(query.toLowerCase())
+            );
+
+            if (filtered.length > 0) {
+                listDiv.innerHTML = filtered.map(item => `
+                    <div onclick="navigateTo('${item.url}')" class="search-item flex items-center p-4 cursor-pointer transition-colors border-b border-slate-50 last:border-0">
+                        <div class="w-10 h-10 bg-slate-50 text-blue-600 rounded flex items-center justify-center mr-4">
+                            <i class="fas ${item.icon}"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <div class="text-sm font-bold text-slate-800">${item.title}</div>
+                            <div class="text-[9px] text-slate-400 uppercase font-black tracking-[0.2em] mt-0.5">${item.category}</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-slate-300 text-xs"></i>
+                    </div>
+                `).join('');
+                resultsDiv.style.display = 'block';
+            } else {
+                listDiv.innerHTML = `<div class="p-6 text-center text-slate-400 text-sm font-medium italic">No results found for "${query}"</div>`;
+                resultsDiv.style.display = 'block';
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            const searchContainer = document.querySelector('.relative.w-full.max-w-2xl');
+            if (searchContainer && !searchContainer.contains(e.target)) {
+                document.getElementById('search-results').style.display = 'none';
+            }
+        });
+
+        function navigateTo(page) {
+            const user = localStorage.getItem('techgrid_user');
+            window.location.href = user ? `${page}?username=${encodeURIComponent(user)}` : page;
+        }
+
+        function verifySession() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let currentUser = urlParams.get('username') || localStorage.getItem('techgrid_user');
+
+            if (currentUser && currentUser !== "null" && currentUser !== "") {
+                const cleanName = decodeURIComponent(currentUser).replace(/['"]+/g, '');
+                localStorage.setItem('techgrid_user', cleanName);
+                document.getElementById('user-display-name').innerText = cleanName.toUpperCase();
+                document.getElementById('hero-welcome').innerText = `Welcome back, ${cleanName}`;
+                
+                document.body.classList.add('auth-verified');
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                }, 400);
+            } else {
+                window.location.href = "login.html";
+            }
+        }
+
+        window.logout = function() {
+            localStorage.removeItem('techgrid_user');
+            window.location.href = "login.html";
+        };
+
+        window.onload = verifySession;
+    </script>
+</body>
+</html>
