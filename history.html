@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request History | TechGrid Systems</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,900&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        
+        /* Updated Logo Style to match image_d71b3e.png */
+        .logo-text {
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+        }
+
+        .status-pill {
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-resolved { background-color: #dcfce7; color: #166534; }
+        .status-progress { background-color: #fef9c3; color: #854d0e; }
+        .status-pending { background-color: #e2e8f0; color: #475569; }
+
+        .history-row { transition: background-color 0.2s ease; }
+        .history-row:hover { background-color: #f1f5f9; }
+
+        #main-content { opacity: 0; transition: opacity 0.3s ease; }
+        .auth-verified #main-content { opacity: 1; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn { animation: fadeIn 0.4s ease forwards; }
+
+        /* Navigation alignment like image_d5b6fc.png */
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #94a3b8;
+            transition: color 0.2s;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: white;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header updated to match branding in image_d5b6fc.png and logo image_d71b3e.png -->
+    <header class="bg-[#111827] text-white px-6 md:px-12 h-20 flex items-center justify-between sticky top-0 z-50 shadow-lg">
+        <div class="flex items-center space-x-12">
+            <!-- Logo Section -->
+            <div class="flex items-center cursor-pointer" onclick="navigateTo('home.html')">
+                <span class="logo-text text-2xl tracking-tighter">
+                    TECHGRID <span class="text-blue-500">SYSTEMS</span>
+                </span>
+            </div>
+            
+            <!-- Navigation Section -->
+            <nav class="hidden lg:flex items-center space-x-8">
+                <a href="javascript:void(0)" onclick="navigateTo('home.html')" class="nav-link">
+                    <i class="fas fa-home text-sm"></i> Home
+                </a>
+                <a href="javascript:void(0)" onclick="navigateTo('new-request.html')" class="nav-link">
+                    <i class="fas fa-plus-circle text-sm"></i> New Request
+                </a>
+                <a href="javascript:void(0)" onclick="navigateTo('history.html')" class="nav-link active">
+                    <i class="fas fa-file-alt text-sm"></i> My Requests
+                </a>
+                <a href="javascript:void(0)" class="nav-link">
+                    <i class="fas fa-lightbulb text-sm"></i> Solutions
+                </a>
+            </nav>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <div id="user-pill" class="flex items-center text-[11px] bg-slate-800 border border-slate-700 px-4 py-2 rounded text-slate-300 font-bold tracking-wider uppercase">
+                <i class="fas fa-user-circle mr-2 text-blue-400"></i>
+                USER: <span id="user-display-name" class="ml-1">LOADING...</span>
+            </div>
+            <button onclick="navigateTo('new-request.html')" class="hidden md:flex items-center px-5 py-2.5 bg-[#ef4444] text-white rounded font-bold text-xs uppercase tracking-widest hover:bg-red-600 transition shadow-lg">
+                <i class="fas fa-headset mr-2"></i> New Request
+            </button>
+        </div>
+    </header>
+
+    <main id="main-content" class="flex-grow max-w-7xl mx-auto w-full p-8 md:p-12">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+            <div>
+                <h1 class="text-4xl font-black text-slate-900 mb-2 tracking-tight">Request History</h1>
+                <p class="text-slate-500 font-medium">Review and track the status of your submitted support tickets.</p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="clearHistory()" class="px-5 py-2.5 border border-slate-200 text-slate-600 rounded font-bold text-xs uppercase tracking-widest hover:bg-slate-50 transition">
+                    Clear Local History
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div id="table-container" class="overflow-x-auto hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200">
+                            <th class="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Reference</th>
+                            <th class="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Subject / Description</th>
+                            <th class="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Department</th>
+                            <th class="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Created</th>
+                            <th class="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Current Status</th>
+                            <th class="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticket-list" class="divide-y divide-slate-100">
+                        <!-- Sync Data Injected Here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="empty-state" class="py-24 flex flex-col items-center justify-center text-center">
+                <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 text-3xl mb-6">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <h3 class="text-slate-800 text-lg font-bold">No active requests found</h3>
+                <p class="text-slate-400 text-sm max-w-xs mx-auto">Your submission history is empty. Use the 'New Request' button to get started.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const TICKET_STORAGE_KEY = 'techgrid_tickets';
+
+        function init() {
+            verifySession();
+            renderTickets();
+
+            window.addEventListener('storage', (event) => {
+                if (event.key === TICKET_STORAGE_KEY) {
+                    renderTickets();
+                }
+            });
+        }
+
+        function renderTickets() {
+            const ticketList = document.getElementById('ticket-list');
+            const emptyState = document.getElementById('empty-state');
+            const tableContainer = document.getElementById('table-container');
+            
+            const rawData = localStorage.getItem(TICKET_STORAGE_KEY);
+            let tickets = rawData ? JSON.parse(rawData) : [];
+
+            const currentUser = localStorage.getItem('techgrid_user');
+            tickets = tickets.filter(t => t.user === currentUser);
+
+            if (tickets.length === 0) {
+                emptyState.classList.remove('hidden');
+                tableContainer.classList.add('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            tableContainer.classList.remove('hidden');
+
+            tickets.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            ticketList.innerHTML = tickets.map(ticket => `
+                <tr class="history-row animate-fadeIn">
+                    <td class="px-6 py-6 font-mono text-[11px] text-slate-400 font-bold">#TG-${ticket.id.substring(0,5).toUpperCase()}</td>
+                    <td class="px-6 py-6">
+                        <div class="text-sm font-bold text-slate-800 mb-1">${ticket.subject || 'Inquiry'}</div>
+                        <div class="text-[11px] text-slate-400 truncate max-w-md">${ticket.description || 'No detailed description.'}</div>
+                    </td>
+                    <td class="px-6 py-6 text-xs text-slate-600 font-semibold uppercase tracking-wider">${ticket.category || 'Support'}</td>
+                    <td class="px-6 py-6 text-xs text-slate-500 font-medium">${new Date(ticket.timestamp).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                    <td class="px-6 py-6">
+                        <span class="status-pill ${getStatusClass(ticket.status)}">${ticket.status || 'Pending'}</span>
+                    </td>
+                    <td class="px-6 py-6 text-right">
+                        <button onclick="viewDetails('${ticket.id}')" class="bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-600 px-4 py-2 rounded text-[10px] font-black uppercase tracking-widest transition-all">
+                            View Case
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getStatusClass(status) {
+            status = status?.toLowerCase() || '';
+            if (status.includes('resolved')) return 'status-resolved';
+            if (status.includes('progress')) return 'status-progress';
+            return 'status-pending';
+        }
+
+        function verifySession() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let sessionName = urlParams.get('username') || localStorage.getItem('techgrid_user');
+
+            if (sessionName && sessionName !== "null") {
+                const cleanName = decodeURIComponent(sessionName).replace(/['"]+/g, '');
+                localStorage.setItem('techgrid_user', cleanName);
+                document.getElementById('user-display-name').innerText = cleanName.toUpperCase();
+                document.body.classList.add('auth-verified');
+            } else {
+                window.location.href = "login.html";
+            }
+        }
+
+        window.navigateTo = (page) => {
+            const user = localStorage.getItem('techgrid_user');
+            window.location.href = user ? `${page}?username=${encodeURIComponent(user)}` : page;
+        };
+
+        window.clearHistory = () => {
+            if(confirm("Are you sure you want to clear your local submission history?")) {
+                localStorage.removeItem(TICKET_STORAGE_KEY);
+                renderTickets();
+            }
+        };
+
+        window.viewDetails = (id) => {
+            console.log("Viewing ticket details for:", id);
+        };
+
+        init();
+    </script>
+</body>
+</html>
