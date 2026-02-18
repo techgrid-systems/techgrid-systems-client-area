@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Denied | TechGrid Systems</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #030712;
+            color: #ffffff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .grid-background {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(to right, rgba(239, 68, 68, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(239, 68, 68, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at center, black, transparent 90%);
+            z-index: 0;
+        }
+
+        .alert-glow {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.1) 0%, transparent 70%);
+            filter: blur(60px);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            animation: pulse 4s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+            100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.6; }
+        }
+
+        .security-box {
+            position: relative;
+            z-index: 10;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 24px;
+            padding: 3rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(239, 68, 68, 0.1);
+        }
+
+        .icon-shield {
+            font-size: 4rem;
+            color: #ef4444;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.5));
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            font-size: 0.7rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-action {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .btn-primary {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-outline {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Standard Header -->
+    <header class="relative z-50 w-full bg-white border-b border-slate-200">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex items-center gap-2 cursor-pointer">
+                    <span class="text-xl italic font-black tracking-tighter text-slate-900 uppercase">
+                        TECHGRID <span class="text-blue-600">SYSTEMS</span>
+                    </span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="https://techgrid-systems.github.io/techgrid-systems/" class="text-sm font-bold text-slate-600 hover:text-blue-600 transition uppercase tracking-wider">Home</a>
+                  <a href="https://techgrid-systems.github.io/techgrid-systems/status/"> 
+                      <button class="bg-blue-600 text-white px-6 py-2.5 rounded-md text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition">
+                        System Status
+                    </button>
+                  </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center relative overflow-hidden">
+        <div class="grid-background"></div>
+        <div class="alert-glow"></div>
+
+        <div class="security-box">
+            <div class="icon-shield">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+
+            <div class="status-badge">Access Denied</div>
+
+            <h1 class="text-3xl font-black text-white uppercase tracking-tight mb-4">
+                Unauthorised Request
+            </h1>
+            
+            <p class="text-slate-400 font-medium leading-relaxed mb-8 text-sm">
+                Your current account credentials do not have the required permissions to access this directory. If you believe this is an error, please contact your system administrator.
+            </p>
+
+            <div class="space-y-3 text-center">
+                <a href="login.html" class="btn-action btn-primary">
+                    Return to Login
+                </a>
+                <a href="https://techgrid-systems.github.io/techgrid-systems/support/" class="btn-action btn-outline">
+                    Contact Helpdesk
+                </a>
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-slate-800">
+                <p class="text-[10px] text-slate-600 font-bold uppercase tracking-widest">
+                    Error Code: 403_FORBIDDEN_ENTRY
+                </p>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>
